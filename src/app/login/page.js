@@ -7,7 +7,7 @@ export default function page() {
   const handlelogin = async () => {
     try {
       const response = await fetch(
-        "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=http://localhost:3000/inbox"
+        "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=https://reachinbox-assignment-sigma.vercel.app/inbox"
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
