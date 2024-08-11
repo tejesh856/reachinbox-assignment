@@ -3,9 +3,13 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 
 function Inboxpage() {
   const params = useSearchParams();
+  const [isDark, setisDark] = useState(true);
+
   const [token, setToken] = useState(null); // Start with null to indicate loading
   const [isAuthenticatestatus, setisAuthenticatestatus] = useState(null); // Start with null
   const router = useRouter();
@@ -43,9 +47,9 @@ function Inboxpage() {
 
   if (isAuthenticatestatus) {
     return (
-      <div>
-        <h1>Inbox</h1>
-        <p>Token: {token || "No token provided"}</p>
+      <div className="flex h-full">
+        <Sidebar isDark={isDark} />
+        <Navbar isDark={isDark} setisDark={setisDark} />
       </div>
     );
   } else {
