@@ -43,7 +43,7 @@ export default function Navbar({ isDark, setisDark }) {
               isDark ? "text-white" : "text-[#454F5B]"
             } items-center text-sm`}
           >
-            Tejesh's Workspace
+            Tejesh&apos;s Workspace
             <IoIosArrowDown size={20} className="ml-2 cursor-pointer" />
           </div>
         </div>
