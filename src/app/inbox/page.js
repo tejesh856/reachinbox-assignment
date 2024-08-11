@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
@@ -53,4 +53,10 @@ function Inboxpage() {
   }
 }
 
-export default Inboxpage;
+export default function Inbox() {
+  return (
+    <Suspense>
+      <Inboxpage />
+    </Suspense>
+  );
+}
