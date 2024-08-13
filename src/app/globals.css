@@ -10,3 +10,16 @@ body {
   height: 100vh;
   width: 100vw;
 }
+/* Add this to your global CSS file */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #5c7cfa;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background-color: #33383f;
+}
