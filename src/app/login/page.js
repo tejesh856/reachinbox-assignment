@@ -23,7 +23,7 @@ function Loginpage() {
 
   const handlelogin = () => {
     window.location.href =
-      "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=http://localhost:3000/inbox";
+      "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=https://reachinbox-assignment-sigma.vercel.app/inbox";
   };
 
   if (isAuthenticatelogin === null) {
