@@ -7,15 +7,21 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Listofemail from "../components/Listofemail";
 import Messages from "../components/Messages";
+import Homepage from "../components/Homepage";
 
 function Inboxpage() {
   const params = useSearchParams();
   const [isDark, setisDark] = useState(true);
   const [Emaillist, setEmaillist] = useState(null);
+  const [Refreshlist, setRefreshlist] = useState(null);
+  const [messagelist, setmessagelist] = useState(null);
+  const [selectedemail, setselectedemail] = useState(false);
+  //const [threadid, setthreadid] = useState(null);
   // const [token, setToken] = useState(null); // Start with null to indicate loading
   const [isAuthenticatestatus, setisAuthenticatestatus] = useState(null); // Start with null
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadinglist, setIsLoadinglist] = useState(false);
+  const [isLoadingmessage, setIsLoadingmessage] = useState(false);
 
   useEffect(() => {
     //const authToken = Cookies.get("authToken");
@@ -42,7 +48,7 @@ function Inboxpage() {
   const fetchEmails = async () => {
     try {
       const authToken = Cookies.get("authToken");
-      setIsLoading(true);
+      setIsLoadinglist(true);
 
       const requestOptions = {
         method: "GET",
@@ -81,24 +87,57 @@ function Inboxpage() {
       const latestEmails = Object.values(latestEmailsMap);
       latestEmails.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
       setEmaillist({ ...res, data: latestEmails });
-      setIsLoading(false);
+      setRefreshlist({ ...res, data: latestEmails });
+      setIsLoadinglist(false);
     } catch (error) {
       console.error("Error fetching emails:", error);
-      setIsLoading(false);
+      setIsLoadinglist(false);
     }
   };
+  const fetchMessages = async (threadid, email, name) => {
+    try {
+      const authToken = Cookies.get("authToken");
+      setIsLoadingmessage(true);
 
+      const requestOptions = {
+        method: "GET",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      };
+
+      const response = await fetch(
+        `https://hiring.reachinbox.xyz/api/v1/onebox/messages/${threadid}`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const res = await response.json();
+      // Group emails by fromEmail and keep the latest one based on sentAt
+
+      // console.log(res);
+      setmessagelist({ email: email, name: name, ...res });
+      setIsLoadingmessage(false);
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+      setIsLoadingmessage(false);
+    }
+  };
   useEffect(() => {
     fetchEmails();
   }, []);
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (isAuthenticatestatus === false) {
       router.push("/login");
     }
   }, [isAuthenticatestatus, router]);
 
-  */ if (isAuthenticatestatus === null) {
+  if (isAuthenticatestatus === null) {
     return <div>Loading...</div>; // Render a loading state initially
   }
 
@@ -107,20 +146,28 @@ function Inboxpage() {
       <div className="flex h-full">
         <Sidebar isDark={isDark} />
 
-        <div className="flex flex-col w-full">
-          <Navbar isDark={isDark} setisDark={setisDark} />
-          <div className="flex h-full w-full">
-            <Listofemail
-              isDark={isDark}
-              Emaillist={Emaillist}
-              fetchEmails={fetchEmails}
-              setEmaillist={setEmaillist}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-            />
-            <Messages />
+        {Emaillist ? (
+          <div className="flex flex-col w-full">
+            <Navbar isDark={isDark} setisDark={setisDark} />
+            <div className="flex h-full w-full">
+              <Listofemail
+                isDark={isDark}
+                Emaillist={Emaillist}
+                fetchEmails={fetchEmails}
+                fetchMessages={fetchMessages}
+                setEmaillist={setEmaillist}
+                setRefreshlist={setRefreshlist}
+                isLoadinglist={isLoadinglist}
+                setIsLoadinglist={setIsLoadinglist}
+                setselectedemail={setselectedemail}
+                selectedemail={selectedemail}
+              />
+              <Messages isDark={isDark} messagelist={messagelist} />
+            </div>
           </div>
-        </div>
+        ) : (
+          <Homepage />
+        )}
       </div>
     );
   } else {
