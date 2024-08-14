@@ -135,7 +135,7 @@ export default function Messages({ isDark, messagelist }) {
             }`}
           >
             {messagelist.data.map((message, index) => (
-              <div className="flex flex-col gap-4 px-4 py-3 mb-6">
+              <div key={index} className="flex flex-col gap-4 px-4 py-3 mb-6">
                 <div
                   className={`border ${
                     isDark ? "border-[#F8FAFC33]" : "border-[#77777733]"
