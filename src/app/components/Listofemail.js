@@ -8,9 +8,12 @@ export default function Listofemail({
   isDark,
   Emaillist,
   fetchEmails,
-  setEmaillist,
-  isLoading,
-  setIsLoading,
+  setRefreshlist,
+  isLoadinglist,
+  setIsLoadinglist,
+  fetchMessages,
+  selectedemail,
+  setselectedemail,
 }) {
   const [hidePlaceholder, setHidePlaceholder] = useState(false);
   const [filteredEmails, setFilteredEmails] = useState(Emaillist?.data || []);
@@ -58,16 +61,16 @@ export default function Listofemail({
   }
 
   const handleRefresh = async () => {
-    setIsLoading(true);
-    setEmaillist(null);
+    setIsLoadinglist(true);
+    setRefreshlist(null);
     await fetchEmails();
-    setIsLoading(false);
+    setIsLoadinglist(false);
   };
 
   const handleSearch = (e) => {
     const searchQuery = e.target.value.toLowerCase();
     setHidePlaceholder(searchQuery.length > 0);
-    setIsLoading(true);
+    setIsLoadinglist(true);
 
     const filtered = Emaillist?.data.filter(
       (email) =>
@@ -75,9 +78,12 @@ export default function Listofemail({
         email.fromEmail.toLowerCase().includes(searchQuery)
     );
     setFilteredEmails(filtered || []);
-    setIsLoading(false);
+    setIsLoadinglist(false);
   };
-
+  const handlemessages = async (threadid, email, name) => {
+    setselectedemail(true);
+    await fetchMessages(threadid, email, name);
+  };
   return (
     <section
       className={`${
@@ -97,7 +103,9 @@ export default function Listofemail({
                   isDark ? "text-white" : "text-[#343A40]"
                 } flex items-center text-sm`}
               >
-                {Emaillist ? `0/${Emaillist.data.length}` : ""}
+                {Emaillist
+                  ? `${selectedemail ? 1 : 0} / ${Emaillist.data.length}`
+                  : ""}
                 <span className="text-[#7F7F7F] ml-2">Inboxes selected</span>
               </div>
             </div>
@@ -187,7 +195,7 @@ export default function Listofemail({
                       <div
                         key={option}
                         className={`px-4 py-2 cursor-pointer ${
-                          isDark ? "hover:bg-[#23272C]" : "hover:bg-gray-200"
+                          isDark ? "hover:bg-[#23272C]" : "bg-gray-200"
                         }`}
                         onClick={() => handleOptionSelect(option)}
                       >
@@ -201,7 +209,7 @@ export default function Listofemail({
           </div>
         </div>
         <div className="h-full w-full overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-[#5C7CFA] scrollbar-track-[#33383F]">
-          {isLoading ? (
+          {isLoadinglist ? (
             <div className="flex justify-center items-center h-full">
               <ClipLoader size={35} color={isDark ? "#FFFFFF" : "#000000"} />
             </div>
@@ -209,7 +217,20 @@ export default function Listofemail({
             filteredEmails.map((email, index) => (
               <div
                 key={index}
-                className="w-full border-y-2 border-[#FFFFFF0D] py-3 cursor-pointer"
+                onClick={() =>
+                  handlemessages(
+                    email.threadId,
+                    email.fromEmail,
+                    email.fromName
+                  )
+                }
+                className={`w-full py-3 cursor-pointer rounded border-y-2 border-[#FFFFFF0D]   ${
+                  selectedemail
+                    ? "hover:bg-transparent border-l-8 border-l-[#5C7CFA]"
+                    : isDark
+                    ? " hover:bg-[#23272C]"
+                    : " hover:bg-gray-200"
+                }`}
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center mr-10">

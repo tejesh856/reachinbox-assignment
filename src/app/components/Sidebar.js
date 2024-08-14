@@ -26,52 +26,79 @@ export default function Sidebar({ isDark }) {
             <ul className="flex h-full flex-col justify-between items-center">
               <li className=" list-none">
                 <TbHomeFilled
-                  className="text-[#919EAB] cursor-pointer"
-                  size={25}
+                  className={`text-[#919EAB] ${
+                    isDark
+                      ? " hover:text-white hover:bg-[#2F3030]"
+                      : " hover:text-[#595A5B] hover:bg-[#E9EAEB]"
+                  } cursor-pointer p-1 rounded`}
+                  size={30}
                 />
               </li>
               <li className="list-none">
                 <MdPersonSearch
-                  className="text-[#919EAB] cursor-pointer"
-                  size={25}
+                  className={`text-[#919EAB] ${
+                    isDark
+                      ? " hover:text-white hover:bg-[#2F3030]"
+                      : " hover:text-[#595A5B] hover:bg-[#E9EAEB]"
+                  } cursor-pointer p-1 rounded`}
+                  size={30}
                 />
               </li>
               <li className="list-none">
-                <IoMdMail className="text-[#919EAB] cursor-pointer" size={25} />
+                <IoMdMail
+                  className={`text-[#919EAB] ${
+                    isDark
+                      ? " hover:text-white hover:bg-[#2F3030]"
+                      : " hover:text-[#595A5B] hover:bg-[#E9EAEB]"
+                  } cursor-pointer p-1 rounded`}
+                  size={30}
+                />
               </li>
               <li className="list-none">
                 <FaTelegramPlane
-                  className="text-[#919EAB] cursor-pointer"
-                  size={25}
+                  className={`text-[#919EAB] ${
+                    isDark
+                      ? " hover:text-white hover:bg-[#2F3030]"
+                      : " hover:text-[#595A5B] hover:bg-[#E9EAEB]"
+                  } cursor-pointer p-1 rounded`}
+                  size={30}
                 />
               </li>
               <li className="list-none">
                 <MdViewList
-                  className="text-[#919EAB] cursor-pointer"
-                  size={25}
+                  className={`text-[#919EAB] ${
+                    isDark
+                      ? " hover:text-white hover:bg-[#2F3030]"
+                      : " hover:text-[#595A5B] hover:bg-[#E9EAEB]"
+                  } cursor-pointer p-1 rounded`}
+                  size={30}
                 />
               </li>
               <li className="list-none">
                 <FaInbox
-                  className={`${
+                  className={`text-[#919EAB] ${
                     isDark
-                      ? "text-white bg-[#2F3030]"
-                      : "text-[#595A5B] bg-[#E9EAEB]"
+                      ? " text-white bg-[#2F3030]"
+                      : " text-[#595A5B] bg-[#E9EAEB]"
                   } cursor-pointer p-1 rounded`}
                   size={30}
                 />
               </li>
               <li className="list-none">
                 <RiBarChart2Fill
-                  className="text-[#919EAB] cursor-pointer"
-                  size={25}
+                  className={`text-[#919EAB] ${
+                    isDark
+                      ? " hover:text-white hover:bg-[#2F3030]"
+                      : " hover:text-[#595A5B] hover:bg-[#E9EAEB]"
+                  } cursor-pointer p-1 rounded`}
+                  size={30}
                 />
               </li>
             </ul>
           </nav>
 
           <div>
-            <div className="text-white rounded-full bg-green-900 text-sm px-3 py-2">
+            <div className="text-white rounded-full bg-green-900 text-sm px-3 py-2 cursor-pointer">
               TR
             </div>
           </div>
