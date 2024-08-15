@@ -5,14 +5,19 @@ import { FcGoogle } from "react-icons/fc";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { ClipLoader } from "react-spinners";
 
 function Loginpage() {
-  const [isAuthenticatelogin, setisAuthenticatelogin] = useState(null); // Start with null
+  const [isAuthenticatelogin, setisAuthenticatelogin] = useState(null);
+  const [isDark, setisDark] = useState(true);
   const router = useRouter();
+  const spinnerStyle = {
+    borderWidth: "5px",
+  };
 
   useEffect(() => {
     const authToken = Cookies.get("authToken");
-    setisAuthenticatelogin(!!authToken); // Update state after checking the cookie
+    setisAuthenticatelogin(!!authToken);
   }, []);
 
   useEffect(() => {
@@ -23,11 +28,15 @@ function Loginpage() {
 
   const handlelogin = () => {
     window.location.href =
-      "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=http://localhost:3000/inbox";
+      "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=https://reachinbox-assignment-sigma.vercel.app/inbox";
   };
 
   if (isAuthenticatelogin === null) {
-    return <div>Loading...</div>; // Show loading until the state is determined
+    return (
+      <div className="flex justify-center items-center h-full w-full bg-[#1F1F1F]">
+        <ClipLoader size={35} color="#4285F4" cssOverride={spinnerStyle} />
+      </div>
+    );
   }
 
   if (!isAuthenticatelogin) {
@@ -66,7 +75,11 @@ function Loginpage() {
       </div>
     );
   } else {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-full w-full bg-[#1F1F1F]">
+        <ClipLoader size={50} color="#4285F4" cssOverride={spinnerStyle} />
+      </div>
+    );
   }
 }
 

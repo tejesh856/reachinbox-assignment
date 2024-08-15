@@ -9,38 +9,35 @@ import Listofemail from "../components/Listofemail";
 import Messages from "../components/Messages";
 import Homepage from "../components/Homepage";
 import Deletemodal from "../components/Deletemodal";
+import { ClipLoader } from "react-spinners";
 
 function Inboxpage() {
   const params = useSearchParams();
   const [isDark, setisDark] = useState(true);
   const [Emaillist, setEmaillist] = useState(null);
-  const [Refreshlist, setRefreshlist] = useState(null);
   const [messagelist, setmessagelist] = useState(null);
   const [selectedemail, setselectedemail] = useState(false);
   const [showdeletemodal, setshowdeletemodal] = useState(false);
-
-  //const [threadid, setthreadid] = useState(null);
-  // const [token, setToken] = useState(null); // Start with null to indicate loading
-  const [isAuthenticatestatus, setisAuthenticatestatus] = useState(null); // Start with null
+  const [selectedThreadId, setSelectedThreadId] = useState(null);
+  const [isAuthenticatestatus, setisAuthenticatestatus] = useState(null);
   const router = useRouter();
   const [isLoadinglist, setIsLoadinglist] = useState(false);
   const [isLoadingmessage, setIsLoadingmessage] = useState(false);
+  const [isLoadingdelete, setIsLoadingdelete] = useState(false);
+  const spinnerStyle = {
+    borderWidth: "5px",
+  };
 
   useEffect(() => {
-    //const authToken = Cookies.get("authToken");
-    //setisAuthenticatestatus(!!authToken);
-
     const tokenFromQuery = params.get("token");
     if (tokenFromQuery) {
-      //setToken(tokenFromQuery);
       Cookies.set("authToken", tokenFromQuery);
-
       setisAuthenticatestatus(true);
     }
   }, [params]);
   useEffect(() => {
     const authToken = Cookies.get("authToken");
-    setisAuthenticatestatus(!!authToken); // Update state after checking the cookie
+    setisAuthenticatestatus(!!authToken);
   }, []);
 
   useEffect(() => {
@@ -71,37 +68,45 @@ function Inboxpage() {
       }
 
       const res = await response.json();
-
-      // Group emails by fromEmail and keep the latest one based on sentAt
-      /*const latestEmailsMap = res.data.reduce((acc, email) => {
-        const existingEmail = acc[email.fromEmail];
-
-        if (
-          !existingEmail ||
-          new Date(email.sentAt) > new Date(existingEmail.sentAt)
-        ) {
-          acc[email.fromEmail] = email;
-        }
-
-        return acc;
-      }, {});*/
-
-      // Convert the map back to an array
-      //const latestEmails = Object.values(latestEmailsMap);
       const latestEmailsMap = res.data.sort(
         (a, b) => new Date(b.sentAt) - new Date(a.sentAt)
       );
-      //console.log(latestEmailsMap);
-
       setEmaillist((prevState) => ({
         ...prevState,
         data: latestEmailsMap,
       }));
+      setIsLoadinglist(false);
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+      setIsLoadinglist(false);
+    }
+  };
+  const fetchRefreshEmails = async () => {
+    try {
+      const authToken = Cookies.get("authToken");
+      setIsLoadinglist(true);
 
-      setRefreshlist((prevState) => ({
-        ...prevState,
-        data: latestEmailsMap,
-      }));
+      const requestOptions = {
+        method: "GET",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      };
+
+      const response = await fetch(
+        "https://hiring.reachinbox.xyz/api/v1/onebox/reset",
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const res = await response.json();
+      alert(res.data);
+      setmessagelist(null);
+      setselectedemail(false);
 
       setIsLoadinglist(false);
     } catch (error) {
@@ -132,9 +137,6 @@ function Inboxpage() {
       }
 
       const res = await response.json();
-      // Group emails by fromEmail and keep the latest one based on sentAt
-
-      // console.log(res);
       setmessagelist({ email: email, name: name, ...res });
       setIsLoadingmessage(false);
     } catch (error) {
@@ -142,10 +144,58 @@ function Inboxpage() {
       setIsLoadingmessage(false);
     }
   };
+  const deleteEmail = async (threadid) => {
+    try {
+      const authToken = Cookies.get("authToken");
+      setIsLoadingdelete(true);
+
+      const requestOptions = {
+        method: "DELETE",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      };
+
+      const response = await fetch(
+        `https://hiring.reachinbox.xyz/api/v1/onebox/messages/${threadid}`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const res = await response.json();
+      alert(res.message);
+      setmessagelist(null);
+      setselectedemail(false);
+      setIsLoadingdelete(false);
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+      setIsLoadingdelete(false);
+    }
+  };
   useEffect(() => {
     fetchEmails();
   }, []);
+  useEffect(() => {
+    const handleKeyDown = async (event) => {
+      if (event.key === "d" || event.key === "D") {
+        if (selectedThreadId) {
+          setshowdeletemodal(false);
+          await deleteEmail(selectedThreadId);
+          await fetchEmails();
+          setSelectedThreadId(null);
+        }
+      }
+    };
 
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedThreadId]);
   useEffect(() => {
     if (isAuthenticatestatus === false) {
       router.push("/login");
@@ -153,7 +203,11 @@ function Inboxpage() {
   }, [isAuthenticatestatus, router]);
 
   if (isAuthenticatestatus === null) {
-    return <div>Loading...</div>; // Render a loading state initially
+    return (
+      <div className="flex justify-center items-center h-full w-full bg-[#1F1F1F]">
+        <ClipLoader size={50} color="#4285F4" cssOverride={spinnerStyle} />
+      </div>
+    );
   }
 
   if (isAuthenticatestatus) {
@@ -162,29 +216,37 @@ function Inboxpage() {
         <Deletemodal
           setshowdeletemodal={setshowdeletemodal}
           showdeletemodal={showdeletemodal}
+          isDark={isDark}
+          selectedThreadId={selectedThreadId}
+          deleteEmail={deleteEmail}
+          fetchEmails={fetchEmails}
+          isLoadingdelete={isLoadingdelete}
         />
         <Sidebar isDark={isDark} />
 
-        {Emaillist ? (
+        {Emaillist && Emaillist.data.length > 0 ? (
           <div className="flex flex-col w-full">
             <Navbar isDark={isDark} setisDark={setisDark} />
             <div className="flex h-full w-full">
               <Listofemail
                 isDark={isDark}
                 Emaillist={Emaillist}
+                fetchRefreshEmails={fetchRefreshEmails}
                 fetchEmails={fetchEmails}
                 fetchMessages={fetchMessages}
                 setEmaillist={setEmaillist}
-                setRefreshlist={setRefreshlist}
                 isLoadinglist={isLoadinglist}
                 setIsLoadinglist={setIsLoadinglist}
                 setselectedemail={setselectedemail}
                 selectedemail={selectedemail}
+                setSelectedThreadId={setSelectedThreadId}
+                selectedThreadId={selectedThreadId}
               />
               <Messages
                 isDark={isDark}
                 messagelist={messagelist}
                 setshowdeletemodal={setshowdeletemodal}
+                isLoadingmessage={isLoadingmessage}
               />
             </div>
           </div>
@@ -194,7 +256,11 @@ function Inboxpage() {
       </div>
     );
   } else {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-full w-full bg-[#1F1F1F]">
+        <ClipLoader size={50} color="#4285F4" cssOverride={spinnerStyle} />
+      </div>
+    );
   }
 }
 

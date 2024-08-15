@@ -8,18 +8,20 @@ export default function Listofemail({
   isDark,
   Emaillist,
   fetchEmails,
-  setRefreshlist,
+  fetchRefreshEmails,
   isLoadinglist,
   setIsLoadinglist,
   fetchMessages,
   selectedemail,
   setselectedemail,
+  selectedThreadId,
+  setSelectedThreadId,
 }) {
   const [hidePlaceholder, setHidePlaceholder] = useState(false);
   const [filteredEmails, setFilteredEmails] = useState(Emaillist?.data || []);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Newest");
-  const [selectedThreadId, setSelectedThreadId] = useState(null);
+  //const [selectedThreadId, setSelectedThreadId] = useState(null);
 
   const options = ["Newest", "Older"];
 
@@ -28,10 +30,24 @@ export default function Listofemail({
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     setIsOpen(false);
+
+    if (filteredEmails) {
+      let sortedEmails = [...filteredEmails];
+
+      if (option === "Newest") {
+        sortedEmails.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+      } else {
+        sortedEmails.reverse();
+      }
+
+      setFilteredEmails(sortedEmails);
+    }
   };
 
   useEffect(() => {
+    console.log(Emaillist);
     setFilteredEmails(Emaillist?.data || []);
+    console.log(filteredEmails);
   }, [Emaillist]);
 
   function formatDate(dateStr) {
@@ -53,7 +69,6 @@ export default function Listofemail({
   }
 
   function newReplies(Emaillist) {
-    console.log(Emaillist.data);
     if (Emaillist && Emaillist.data) {
       const unreadCount = Emaillist.data.filter(
         (email) => !email.isRead
@@ -63,10 +78,8 @@ export default function Listofemail({
   }
 
   const handleRefresh = async () => {
-    setIsLoadinglist(true);
-    setRefreshlist(null);
+    await fetchRefreshEmails();
     await fetchEmails();
-    setIsLoadinglist(false);
   };
 
   const handleSearch = (e) => {
@@ -84,7 +97,7 @@ export default function Listofemail({
   };
   const handlemessages = async (threadid, email, name) => {
     setselectedemail(true);
-    setSelectedThreadId(threadid); // Set the selected email's threadId
+    setSelectedThreadId(threadid);
     await fetchMessages(threadid, email, name);
   };
   return (
@@ -106,7 +119,7 @@ export default function Listofemail({
                   isDark ? "text-white" : "text-[#343A40]"
                 } flex items-center text-sm`}
               >
-                {Emaillist
+                {Emaillist && Emaillist.data.length > 0
                   ? `${selectedemail ? 1 : 0} / ${Emaillist.data.length}`
                   : ""}
                 <span className="text-[#7F7F7F] ml-2">Inboxes selected</span>
@@ -211,9 +224,9 @@ export default function Listofemail({
             </div>
           </div>
         </div>
-        <div className="h-full w-full overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-[#5C7CFA] scrollbar-track-[#33383F]">
+        <div className="h-full w-full overflow-y-auto flex flex-col">
           {isLoadinglist ? (
-            <div className="flex justify-center items-center h-full">
+            <div className="flex justify-center items-center h-full  w-full">
               <ClipLoader size={35} color={isDark ? "#FFFFFF" : "#000000"} />
             </div>
           ) : filteredEmails.length > 0 ? (

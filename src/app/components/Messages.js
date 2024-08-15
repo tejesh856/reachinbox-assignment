@@ -8,8 +8,14 @@ import {
 } from "react-icons/md";
 import { LuClock } from "react-icons/lu";
 import { useState, useEffect, useRef } from "react";
+import { ClipLoader } from "react-spinners";
 
-export default function Messages({ isDark, messagelist, setshowdeletemodal }) {
+export default function Messages({
+  isDark,
+  messagelist,
+  setshowdeletemodal,
+  isLoadingmessage,
+}) {
   const [showemaildropdown, setshowemaildropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -52,7 +58,7 @@ export default function Messages({ isDark, messagelist, setshowdeletemodal }) {
       const day = dateObj.getDate();
       const month = dateObj.toLocaleString("en-US", { month: "short" });
       const year = dateObj.getFullYear();
-      const hours = dateObj.getHours();
+      //const hours = dateObj.getHours();
 
       return `${day} ${month} ${year}`;
     }
@@ -254,100 +260,115 @@ export default function Messages({ isDark, messagelist, setshowdeletemodal }) {
           </div>
 
           <div
-            className={`flex flex-col h-full w-full p-6 overflow-y-auto border border-red-500  ${
+            className={`flex flex-col w-full h-[60vh] px-6 overflow-y-auto pt-4  ${
               isDark ? "bg-black" : "bg-[#EEF1F4]"
             }`}
           >
-            {messagelist.data.map((message, index) => (
-              <div key={index} className="flex flex-col gap-4 px-4 py-3 mb-6">
-                <div
-                  className={`border ${
-                    isDark ? "border-[#F8FAFC33]" : "border-[#77777733]"
-                  } relative`}
-                >
+            {isLoadingmessage ? (
+              <div className="flex justify-center items-center h-full w-full">
+                <ClipLoader size={35} color={isDark ? "#FFFFFF" : "#000000"} />
+              </div>
+            ) : (
+              messagelist.data.map((message, index) => (
+                <div key={index} className="flex flex-col gap-4 p-4">
                   <div
-                    className={`${
-                      isDark
-                        ? "bg-[#171819] text-white"
-                        : "bg-[#EEF1F4] text-[#637381]"
-                    } text-sm absolute -top-4 left-1/2 px-2 py-1 rounded`}
+                    className={`border mb-2 ${
+                      isDark ? "border-[#F8FAFC33]" : "border-[#77777733]"
+                    } relative`}
                   >
-                    {formatDate(message.sentAt)}
+                    <div
+                      className={`${
+                        isDark
+                          ? "bg-[#171819] text-white"
+                          : "bg-[#EEF1F4] text-[#637381]"
+                      } text-sm absolute -top-4 left-1/2 -translate-x-1/2 px-2 py-1 rounded`}
+                    >
+                      {formatDate(message.sentAt)}
+                    </div>
                   </div>
-                </div>
-                <div
-                  className={`flex flex-col gap-7 drop-shadow px-4 py-3 rounded border  ${
-                    isDark
-                      ? "bg-[#141517] border-[#343A40]"
-                      : "bg-[#F9F9F9] border-[#E0E0E0]"
-                  }`}
-                >
-                  <div className="flex justify-between">
-                    <div className="flex flex-col">
-                      <h2
-                        className={`text-xl ${
-                          isDark ? "text-[#F8FAFC]" : "text-black"
-                        }`}
-                      >
-                        {message.subject}
-                      </h2>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span
-                          className={`text-sm ${
+                  <div
+                    className={`flex flex-col gap-7 drop-shadow px-4 py-3 rounded border  ${
+                      isDark
+                        ? "bg-[#141517] border-[#343A40]"
+                        : "bg-[#F9F9F9] border-[#E0E0E0]"
+                    }`}
+                  >
+                    <div className="flex justify-between">
+                      <div className="flex flex-col">
+                        <h2
+                          className={`text-xl ${
+                            isDark ? "text-[#F8FAFC]" : "text-black"
+                          }`}
+                        >
+                          {message.subject}
+                        </h2>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span
+                            className={`text-sm ${
+                              isDark ? "text-[#AEAEAE]" : "text-[#637381]"
+                            }`}
+                          >
+                            from :{message.fromEmail}
+                          </span>
+                          <span
+                            className={`text-sm ${
+                              isDark ? "text-[#AEAEAE]" : "text-[#637381]"
+                            }`}
+                          >
+                            cc :{message.cc ? message.cc : ""}
+                          </span>
+                        </div>
+                        <div
+                          className={`text-sm mt-2 ${
                             isDark ? "text-[#AEAEAE]" : "text-[#637381]"
                           }`}
                         >
-                          from :{message.fromEmail}
-                        </span>
-                        <span
-                          className={`text-sm ${
-                            isDark ? "text-[#AEAEAE]" : "text-[#637381]"
-                          }`}
-                        >
-                          cc :{message.cc ? message.cc : ""}
-                        </span>
+                          to :{message.toEmail}
+                        </div>
                       </div>
                       <div
-                        className={`text-sm mt-2 ${
-                          isDark ? "text-[#AEAEAE]" : "text-[#637381]"
+                        className={`${
+                          isDark ? "text-[#7F7F7F]" : "text-[#637381]"
                         }`}
                       >
-                        to :{message.toEmail}
+                        {formatCustomDate(message.sentAt)}
                       </div>
                     </div>
                     <div
                       className={`${
-                        isDark ? "text-[#7F7F7F]" : "text-[#637381]"
+                        isDark ? "text-[#E1E0E0]" : "text-[#172B4D]"
                       }`}
-                    >
-                      {formatCustomDate(message.sentAt)}
-                    </div>
-                  </div>
-                  <div
-                    className={`${
-                      isDark ? "text-[#E1E0E0]" : "text-[#172B4D]"
-                    }`}
-                    dangerouslySetInnerHTML={{ __html: message.body }}
-                  >
-                    {/*message.body*/}
+                      dangerouslySetInnerHTML={{ __html: message.body }}
+                    ></div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
+
             <div></div>
           </div>
-          <button className="flex w-auto mx-6 mt-4 rounded self-start text-white items-center text-lg px-6 py-2 bg-gradient-to-r from-[#4B63DD] to-[#0524BF]">
-            <MdReply size={25} className="text-[#F6F6F6] mr-2" />
-            Reply
-          </button>
+          {!isLoadingmessage ? (
+            <div className="pt-4 pl-6">
+              <button className="flex w-auto rounded self-start text-white items-center text-lg px-6 py-2 bg-gradient-to-r from-[#4B63DD] to-[#0524BF]">
+                <MdReply size={25} className="text-[#F6F6F6] mr-2" />
+                Reply
+              </button>
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     );
   } else {
     return (
       <div
-        className={`h-full w-full ${isDark ? "bg-black" : "bg-white"}`}
-      ></div>
+        className={`h-full w-full flex items-center justify-center ${
+          isDark ? "bg-black text-[#E1E0E0]" : "bg-white text-text-[#172B4D]"
+        }`}
+      >
+        click on Email to see Messages
+      </div>
     );
   }
 }
