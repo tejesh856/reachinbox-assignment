@@ -8,6 +8,7 @@ import Navbar from "../components/Navbar";
 import Listofemail from "../components/Listofemail";
 import Messages from "../components/Messages";
 import Homepage from "../components/Homepage";
+import Deletemodal from "../components/Deletemodal";
 
 function Inboxpage() {
   const params = useSearchParams();
@@ -16,6 +17,8 @@ function Inboxpage() {
   const [Refreshlist, setRefreshlist] = useState(null);
   const [messagelist, setmessagelist] = useState(null);
   const [selectedemail, setselectedemail] = useState(false);
+  const [showdeletemodal, setshowdeletemodal] = useState(false);
+
   //const [threadid, setthreadid] = useState(null);
   // const [token, setToken] = useState(null); // Start with null to indicate loading
   const [isAuthenticatestatus, setisAuthenticatestatus] = useState(null); // Start with null
@@ -70,7 +73,7 @@ function Inboxpage() {
       const res = await response.json();
 
       // Group emails by fromEmail and keep the latest one based on sentAt
-      const latestEmailsMap = res.data.reduce((acc, email) => {
+      /*const latestEmailsMap = res.data.reduce((acc, email) => {
         const existingEmail = acc[email.fromEmail];
 
         if (
@@ -81,13 +84,25 @@ function Inboxpage() {
         }
 
         return acc;
-      }, {});
+      }, {});*/
 
       // Convert the map back to an array
-      const latestEmails = Object.values(latestEmailsMap);
-      latestEmails.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
-      setEmaillist({ ...res, data: latestEmails });
-      setRefreshlist({ ...res, data: latestEmails });
+      //const latestEmails = Object.values(latestEmailsMap);
+      const latestEmailsMap = res.data.sort(
+        (a, b) => new Date(b.sentAt) - new Date(a.sentAt)
+      );
+      //console.log(latestEmailsMap);
+
+      setEmaillist((prevState) => ({
+        ...prevState,
+        data: latestEmailsMap,
+      }));
+
+      setRefreshlist((prevState) => ({
+        ...prevState,
+        data: latestEmailsMap,
+      }));
+
       setIsLoadinglist(false);
     } catch (error) {
       console.error("Error fetching emails:", error);
@@ -144,6 +159,10 @@ function Inboxpage() {
   if (isAuthenticatestatus) {
     return (
       <div className="flex h-full">
+        <Deletemodal
+          setshowdeletemodal={setshowdeletemodal}
+          showdeletemodal={showdeletemodal}
+        />
         <Sidebar isDark={isDark} />
 
         {Emaillist ? (
@@ -162,7 +181,11 @@ function Inboxpage() {
                 setselectedemail={setselectedemail}
                 selectedemail={selectedemail}
               />
-              <Messages isDark={isDark} messagelist={messagelist} />
+              <Messages
+                isDark={isDark}
+                messagelist={messagelist}
+                setshowdeletemodal={setshowdeletemodal}
+              />
             </div>
           </div>
         ) : (

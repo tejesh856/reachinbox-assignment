@@ -1,7 +1,31 @@
 import { IoIosArrowDown } from "react-icons/io";
-import { MdReply } from "react-icons/md";
+import {
+  MdMarkunreadMailbox,
+  MdEdit,
+  MdPersonRemove,
+  MdDeleteOutline,
+  MdReply,
+} from "react-icons/md";
+import { LuClock } from "react-icons/lu";
+import { useState, useEffect, useRef } from "react";
 
-export default function Messages({ isDark, messagelist }) {
+export default function Messages({ isDark, messagelist, setshowdeletemodal }) {
+  const [showemaildropdown, setshowemaildropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setshowemaildropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   if (messagelist) {
     function formatDate(dateStr) {
       const dateObj = new Date(dateStr);
@@ -51,6 +75,13 @@ export default function Messages({ isDark, messagelist }) {
 
       return `${day} ${month} ${year} : ${hours}:${minutes}${ampm}`;
     }
+    const handleemailoptions = (e) => {
+      setshowemaildropdown(!showemaildropdown);
+    };
+    const handledeletemodal = () => {
+      setshowdeletemodal(true);
+      setshowemaildropdown(false);
+    };
 
     return (
       <div className={`w-full h-full ${isDark ? "bg-black" : "bg-white"}`}>
@@ -117,20 +148,113 @@ export default function Messages({ isDark, messagelist }) {
                   }`}
                 />
               </button>
-              <button
-                className={` border  rounded ${
-                  isDark
-                    ? "bg-[#1F1F1F] text-[#D3D7DB] border-[#343A40]"
-                    : "bg-white border-[#DFE3E8] text-[#172B4D]"
-                } p-1 flex items-center`}
-              >
-                ...
-              </button>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={(e) => handleemailoptions(e)}
+                  className={` border  rounded ${
+                    isDark
+                      ? "bg-[#1F1F1F] text-[#D3D7DB] border-[#343A40]"
+                      : "bg-white border-[#DFE3E8] text-[#172B4D]"
+                  } p-1 flex items-center`}
+                >
+                  ...
+                </button>
+                <div
+                  className={`${
+                    showemaildropdown ? "block" : "hidden"
+                  } absolute top-12 py-2 -left-44 rounded z-50 borfer ${
+                    isDark
+                      ? "bg-[#1E1F22] border-[#343A40]"
+                      : "bg-white border-[#DFE3E8] drop-shadow"
+                  }`}
+                >
+                  <li
+                    className={`flex cursor-pointer ${
+                      isDark
+                        ? "text-[#D3D7DB] hover:bg-[#2F3030]"
+                        : "text-[text-[#919EAB]] hover:bg-[#E9EAEB]"
+                    } py-2 px-4`}
+                  >
+                    <MdMarkunreadMailbox
+                      size={20}
+                      className={`${
+                        isDark ? "text-[#EBEBEB]" : "text-[#343a40c7]"
+                      } mr-4`}
+                    />
+                    Mark as unread
+                  </li>
+
+                  <li
+                    className={`flex cursor-pointer ${
+                      isDark
+                        ? "text-[#D3D7DB] hover:bg-[#2F3030]"
+                        : "text-[text-[#919EAB]] hover:bg-[#E9EAEB]"
+                    } py-2 px-4`}
+                  >
+                    <MdEdit
+                      size={20}
+                      className={`${
+                        isDark ? "text-[#EBEBEB]" : "text-[#343a40c7]"
+                      } mr-4`}
+                    />
+                    Edit lead
+                  </li>
+
+                  <li
+                    className={`flex cursor-pointer ${
+                      isDark
+                        ? "text-[#D3D7DB] hover:bg-[#2F3030]"
+                        : "text-[text-[#919EAB]] hover:bg-[#E9EAEB]"
+                    } py-2 px-4`}
+                  >
+                    <MdPersonRemove
+                      size={20}
+                      className={`${
+                        isDark ? "text-[#EBEBEB]" : "text-[#343a40c7]"
+                      } mr-4`}
+                    />
+                    Remove lead
+                  </li>
+
+                  <li
+                    className={`flex cursor-pointer ${
+                      isDark
+                        ? "text-[#D3D7DB] hover:bg-[#2F3030]"
+                        : "text-[text-[#919EAB]] hover:bg-[#E9EAEB]"
+                    } py-2 px-4`}
+                  >
+                    <LuClock
+                      size={20}
+                      className={`${
+                        isDark ? "text-[#EBEBEB]" : "text-[#343a40c7]"
+                      } mr-4`}
+                    />
+                    Set reminder
+                  </li>
+
+                  <li
+                    onClick={handledeletemodal}
+                    className={`flex cursor-pointer ${
+                      isDark
+                        ? "text-[#D3D7DB] hover:bg-[#2F3030]"
+                        : "text-[text-[#919EAB]] hover:bg-[#E9EAEB]"
+                    } py-2 px-4`}
+                  >
+                    <MdDeleteOutline
+                      size={20}
+                      className={`${
+                        isDark ? "text-[#EBEBEB]" : "text-[#343a40c7]"
+                      } mr-4`}
+                    />
+                    Delete
+                  </li>
+                </div>
+              </div>
             </div>
           </div>
 
           <div
-            className={`flex flex-col h-full w-full p-6 scrollbar-thin scrollbar-thumb-[#5C7CFA] scrollbar-track-[#33383F] ${
+            className={`flex flex-col h-full w-full p-6 overflow-y-auto border border-red-500  ${
               isDark ? "bg-black" : "bg-[#EEF1F4]"
             }`}
           >
@@ -212,7 +336,7 @@ export default function Messages({ isDark, messagelist }) {
             ))}
             <div></div>
           </div>
-          <button className="flex w-auto mx-6 mt-4 rounded self-start text-white items-center text-xl px-6 py-2 bg-gradient-to-r from-[#4B63DD] to-[#0524BF]">
+          <button className="flex w-auto mx-6 mt-4 rounded self-start text-white items-center text-lg px-6 py-2 bg-gradient-to-r from-[#4B63DD] to-[#0524BF]">
             <MdReply size={25} className="text-[#F6F6F6] mr-2" />
             Reply
           </button>

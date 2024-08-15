@@ -19,6 +19,7 @@ export default function Listofemail({
   const [filteredEmails, setFilteredEmails] = useState(Emaillist?.data || []);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Newest");
+  const [selectedThreadId, setSelectedThreadId] = useState(null);
 
   const options = ["Newest", "Older"];
 
@@ -52,6 +53,7 @@ export default function Listofemail({
   }
 
   function newReplies(Emaillist) {
+    console.log(Emaillist.data);
     if (Emaillist && Emaillist.data) {
       const unreadCount = Emaillist.data.filter(
         (email) => !email.isRead
@@ -82,6 +84,7 @@ export default function Listofemail({
   };
   const handlemessages = async (threadid, email, name) => {
     setselectedemail(true);
+    setSelectedThreadId(threadid); // Set the selected email's threadId
     await fetchMessages(threadid, email, name);
   };
   return (
@@ -224,12 +227,18 @@ export default function Listofemail({
                     email.fromName
                   )
                 }
-                className={`w-full py-3 cursor-pointer rounded border-y-2 border-[#FFFFFF0D]   ${
-                  selectedemail
-                    ? "hover:bg-transparent border-l-8 border-l-[#5C7CFA]"
-                    : isDark
-                    ? " hover:bg-[#23272C]"
-                    : " hover:bg-gray-200"
+                className={`w-full py-3 cursor-pointer rounded border-y-2 border-[#FFFFFF0D] ${
+                  selectedThreadId === email.threadId
+                    ? "border-l-8 border-l-[#5C7CFA]"
+                    : ""
+                } ${
+                  isDark
+                    ? selectedThreadId === email.threadId
+                      ? "bg-[#23272C]"
+                      : "hover:bg-[#23272C]"
+                    : selectedThreadId === email.threadId
+                    ? "bg-[#E7F0FF]"
+                    : "hover:bg-[#F5F7F9]"
                 }`}
               >
                 <div className="flex justify-between items-center">
