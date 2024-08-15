@@ -24,6 +24,7 @@ function Inboxpage() {
   const [isLoadinglist, setIsLoadinglist] = useState(false);
   const [isLoadingmessage, setIsLoadingmessage] = useState(false);
   const [isLoadingdelete, setIsLoadingdelete] = useState(false);
+  const [showreply, setshowreply] = useState(false);
   const spinnerStyle = {
     borderWidth: "5px",
   };
@@ -107,6 +108,7 @@ function Inboxpage() {
       alert(res.data);
       setmessagelist(null);
       setselectedemail(false);
+      setshowreply(false);
 
       setIsLoadinglist(false);
     } catch (error) {
@@ -197,6 +199,19 @@ function Inboxpage() {
     };
   }, [selectedThreadId]);
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "r" || event.key === "R") {
+        setshowreply(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+  useEffect(() => {
     if (isAuthenticatestatus === false) {
       router.push("/login");
     }
@@ -243,9 +258,13 @@ function Inboxpage() {
                 selectedThreadId={selectedThreadId}
               />
               <Messages
+                Emaillist={Emaillist}
+                selectedThreadId={selectedThreadId}
                 isDark={isDark}
                 messagelist={messagelist}
                 setshowdeletemodal={setshowdeletemodal}
+                setshowreply={setshowreply}
+                showreply={showreply}
                 isLoadingmessage={isLoadingmessage}
               />
             </div>

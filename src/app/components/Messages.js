@@ -9,15 +9,34 @@ import {
 import { LuClock } from "react-icons/lu";
 import { useState, useEffect, useRef } from "react";
 import { ClipLoader } from "react-spinners";
+import TextEditor from "./TextEditor";
 
 export default function Messages({
   isDark,
   messagelist,
   setshowdeletemodal,
   isLoadingmessage,
+  setshowreply,
+  showreply,
+  Emaillist,
+  selectedThreadId,
 }) {
   const [showemaildropdown, setshowemaildropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const handlereply = () => {
+    if (Emaillist && Emaillist.data.length > 0) {
+      const emailExists = Emaillist.data.some(
+        (email) => email.threadId === selectedThreadId
+      );
+
+      if (emailExists) {
+        setshowreply(true);
+      }
+    }
+  };
+  useEffect(() => {
+    setshowreply(false);
+  }, [selectedThreadId]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -36,49 +55,32 @@ export default function Messages({
     function formatDate(dateStr) {
       const dateObj = new Date(dateStr);
       const now = new Date();
-
-      // Clear the time portion to compare only dates
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
 
       const oneDay = 24 * 60 * 60 * 1000;
-
-      // Check if the date is today
       if (dateObj >= today && dateObj < today.getTime() + oneDay) {
         return "Today";
       }
-
-      // Check if the date is yesterday
       if (dateObj >= yesterday && dateObj < today) {
         return "Yesterday";
       }
-
-      // Otherwise, return the usual formatted date
       const day = dateObj.getDate();
       const month = dateObj.toLocaleString("en-US", { month: "short" });
       const year = dateObj.getFullYear();
-      //const hours = dateObj.getHours();
-
       return `${day} ${month} ${year}`;
     }
 
     function formatCustomDate(dateStr) {
       const dateObj = new Date(dateStr);
-
-      // Extract day, month, and year
       const day = dateObj.getDate();
       const month = dateObj.toLocaleString("en-US", { month: "long" });
       const year = dateObj.getFullYear();
-
-      // Extract hours and minutes
       let hours = dateObj.getHours();
       const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-
-      // Determine AM/PM
       const ampm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12 || 12; // Convert to 12-hour format
-
+      hours = hours % 12 || 12;
       return `${day} ${month} ${year} : ${hours}:${minutes}${ampm}`;
     }
     const handleemailoptions = (e) => {
@@ -90,8 +92,12 @@ export default function Messages({
     };
 
     return (
-      <div className={`w-full h-full ${isDark ? "bg-black" : "bg-white"}`}>
-        <div className="flex flex-col h-full pb-4">
+      <div
+        className={`w-full h-full flex justify-center ${
+          isDark ? "bg-black" : "bg-white"
+        } relative`}
+      >
+        <div className="flex flex-col h-full w-full pb-4">
           <div
             className={`flex border-b-2 ${
               isDark ? " border-[#F8FAFC33]" : "border-[#E0E0E0]"
@@ -344,12 +350,17 @@ export default function Messages({
                 </div>
               ))
             )}
-
-            <div></div>
           </div>
           {!isLoadingmessage ? (
-            <div className="pt-4 pl-6">
-              <button className="flex w-auto rounded self-start text-white items-center text-lg px-6 py-2 bg-gradient-to-r from-[#4B63DD] to-[#0524BF]">
+            <div
+              className={`${
+                showreply ? "hidden" : "block"
+              } mt-4 cursor-pointer self-start ml-6 z-10`}
+            >
+              <button
+                onClick={handlereply}
+                className="rounded flex text-white items-center text-lg px-6 py-2 bg-gradient-to-r from-[#4B63DD] to-[#0524BF]"
+              >
                 <MdReply size={25} className="text-[#F6F6F6] mr-2" />
                 Reply
               </button>
@@ -357,6 +368,13 @@ export default function Messages({
           ) : (
             ""
           )}
+        </div>
+        <div className="absolute bottom-5 left-10 w-[90%] h-[70vh]">
+          <TextEditor
+            isDark={isDark}
+            showreply={showreply}
+            setshowreply={setshowreply}
+          />
         </div>
       </div>
     );
