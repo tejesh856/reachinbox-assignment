@@ -12,6 +12,8 @@ export default function Listofemail({
   isLoadinglist,
   setIsLoadinglist,
   fetchMessages,
+  setFocusedElement,
+
   selectedemail,
   setselectedemail,
   selectedThreadId,
@@ -21,7 +23,6 @@ export default function Listofemail({
   const [filteredEmails, setFilteredEmails] = useState(Emaillist?.data || []);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Newest");
-  //const [selectedThreadId, setSelectedThreadId] = useState(null);
 
   const options = ["Newest", "Older"];
 
@@ -45,9 +46,7 @@ export default function Listofemail({
   };
 
   useEffect(() => {
-    console.log(Emaillist);
     setFilteredEmails(Emaillist?.data || []);
-    console.log(filteredEmails);
   }, [Emaillist]);
 
   function formatDate(dateStr) {
@@ -146,6 +145,8 @@ export default function Listofemail({
                 type="search"
                 name="search"
                 id="search"
+                onFocus={() => setFocusedElement(false)}
+                onBlur={() => setFocusedElement(true)}
                 className={`${
                   isDark
                     ? "bg-[#23272C] border-[#FFFFFF1A] text-white"

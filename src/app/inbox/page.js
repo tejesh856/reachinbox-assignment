@@ -25,6 +25,7 @@ function Inboxpage() {
   const [isLoadingmessage, setIsLoadingmessage] = useState(false);
   const [isLoadingdelete, setIsLoadingdelete] = useState(false);
   const [showreply, setshowreply] = useState(false);
+  const [focusedElement, setFocusedElement] = useState(true);
   const spinnerStyle = {
     borderWidth: "5px",
   };
@@ -177,6 +178,40 @@ function Inboxpage() {
       setIsLoadingdelete(false);
     }
   };
+  const replyMessage = async (threadid, body) => {
+    try {
+      const authToken = Cookies.get("authToken");
+      setIsLoadingdelete(true);
+
+      const requestOptions = {
+        method: "POST",
+        body: JSON.stringify(body), // Convert the body to a JSON string
+        redirect: "follow",
+        headers: {
+          "Content-Type": "application/json", // Specify the content type as JSON
+          Authorization: `Bearer ${authToken}`,
+        },
+      };
+
+      const response = await fetch(
+        `https://hiring.reachinbox.xyz/api/v1/onebox/reply/${threadid}`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const res = await response.json();
+      //alert(res.message);
+      //setmessagelist(null);
+      //setselectedemail(false);
+      //setIsLoadingdelete(false);
+      console.log(res);
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+      //setIsLoadingdelete(false);
+    }
+  };
   useEffect(() => {
     fetchEmails();
   }, []);
@@ -184,10 +219,12 @@ function Inboxpage() {
     const handleKeyDown = async (event) => {
       if (event.key === "d" || event.key === "D") {
         if (selectedThreadId) {
-          setshowdeletemodal(false);
-          await deleteEmail(selectedThreadId);
-          await fetchEmails();
-          setSelectedThreadId(null);
+          if (focusedElement) {
+            setshowdeletemodal(false);
+            await deleteEmail(selectedThreadId);
+            await fetchEmails();
+            setSelectedThreadId(null);
+          }
         }
       }
     };
@@ -197,7 +234,7 @@ function Inboxpage() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedThreadId]);
+  }, [selectedThreadId, focusedElement]);
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "r" || event.key === "R") {
@@ -249,6 +286,7 @@ function Inboxpage() {
                 fetchRefreshEmails={fetchRefreshEmails}
                 fetchEmails={fetchEmails}
                 fetchMessages={fetchMessages}
+                setFocusedElement={setFocusedElement}
                 setEmaillist={setEmaillist}
                 isLoadinglist={isLoadinglist}
                 setIsLoadinglist={setIsLoadinglist}
@@ -262,10 +300,12 @@ function Inboxpage() {
                 selectedThreadId={selectedThreadId}
                 isDark={isDark}
                 messagelist={messagelist}
+                setFocusedElement={setFocusedElement}
                 setshowdeletemodal={setshowdeletemodal}
                 setshowreply={setshowreply}
                 showreply={showreply}
                 isLoadingmessage={isLoadingmessage}
+                replyMessage={replyMessage}
               />
             </div>
           </div>

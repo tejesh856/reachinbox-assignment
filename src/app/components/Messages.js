@@ -20,6 +20,8 @@ export default function Messages({
   showreply,
   Emaillist,
   selectedThreadId,
+  replyMessage,
+  setFocusedElement,
 }) {
   const [showemaildropdown, setshowemaildropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -374,6 +376,10 @@ export default function Messages({
             isDark={isDark}
             showreply={showreply}
             setshowreply={setshowreply}
+            Emaillist={Emaillist}
+            replyMessage={replyMessage}
+            selectedThreadId={selectedThreadId}
+            setFocusedElement={setFocusedElement}
           />
         </div>
       </div>
